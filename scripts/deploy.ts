@@ -20,12 +20,6 @@ async function main() {
   console.log(`The Merkle Timi Contract has been deployed at Address: ${MerkleTimiContract.address}`)
 
 
-  console.log(`Balance of contract: ${await MerkleTimiContract.balanceOf(MerkleTimiContract.address)}`)
-
-  // Transfer to Contract add
-  // await MerkleTimiContract.connect(owner).transfer(MerkleTimiContract.address, )
-
-
 
   // Impersonating account
   const helpers = require("@nomicfoundation/hardhat-network-helpers");
@@ -44,7 +38,8 @@ async function main() {
     res.push(allLines[i].split(", "));
   }
 
-  console.log(res)
+  fs.writeFileSync("./scripts/data/data.json", JSON.stringify(res));
+
 
 
 
@@ -54,13 +49,12 @@ async function main() {
 
   console.log(`The Merkle root is: ${tree.root}`)
 
-  fs.writeFileSync("./scripts/data/data.json", JSON.stringify(res));
-
   fs.writeFileSync("./scripts/data/tree.json", JSON.stringify(tree.dump()));
 
 
+
   // Generate proof
-  //
+  //@ts-ignore
   const verificationTree = StandardMerkleTree.load(JSON.parse(fs.readFileSync("./scripts/data/tree.json")));
 
 
@@ -71,21 +65,18 @@ async function main() {
 
         const proof = verificationTree.getProof(v)
 
-        console.log(`Value: ${v[0]}`)
-        console.log(`Addr: ${addr}`)
-        console.log(`Addr: ${proof}`)
-        console.log(`Addr: ${v}`)
-
-        console.log(`Proof: ${proof}`)
+        // console.log(`Address: ${v[0]}`)
+        // console.log(`Leaf data: ${v}`)
+        // console.log(`Proof: ${proof}`)
 
         return proof;
       }
     }
   }
 
-  const RichKidProof =await getProof(RICHKID);
+  const RichKidProof = await getProof(RICHKID);
 
-  console.log(`RichKidProof: ${RichKidProof}`)
+  console.log(`The Proof of address ${RICHKID} is: ${RichKidProof}`)
 
 
 
@@ -98,32 +89,17 @@ async function main() {
   console.log(`Rich Kid balance before claiming airdrop is: ${BalBefClaim}`);
 
 
-  // Check contract balance before claiming airdrop
-  const CBalBefClaim = await MerkleTimiContract.balanceOf(MerkleTimiContract.address);
-  console.log(`Contract balance before claiming airdrop is: ${CBalBefClaim}`);
-
-
   // Claim Airdrop
-  // const amount = ethers.BigNumber.from("10000000000000000000000000")
-  const amount = ethers.utils.parseEther("10000000")
-  MerkleTimiContract.connect(impersonatedSigner).claimAirdrop(amount, RichKidProof)
-
-  console.log(`Finished claiming`)
+  //@ts-ignore
+  await MerkleTimiContract.connect(impersonatedSigner).claimAirdrop(1000, RichKidProof)
 
 
   // Check Rich kid balance after claiming airdrop
   const BalAftClaim = await MerkleTimiContract.balanceOf(impersonatedSigner.address);
   console.log(`Rich Kid balance after claiming airdrop is: ${BalAftClaim}`);
 
-
-  // Check Contract balance after claiming airdrop
-  const CBalAftClaim = await MerkleTimiContract.balanceOf(MerkleTimiContract.address);
-  console.log(`Contract balance after claiming airdrop is: ${CBalAftClaim}`);
-
-
 } 
-// 99 999 000 000 000 000 000 000 000
-// 10 000 000 000 000 000 000 000 000
+
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.

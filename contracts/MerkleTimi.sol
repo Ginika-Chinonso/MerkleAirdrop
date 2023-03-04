@@ -15,7 +15,6 @@ contract MerkleTimi is ERC20{
 
     constructor(string memory _name, string memory _symbol) ERC20(_name, _symbol){
         owner = msg.sender;
-        _mint(address(this), 100000000000000000000000000);
     }
 
     function onlyOwner() internal view {
@@ -35,7 +34,8 @@ contract MerkleTimi is ERC20{
 
     function claimAirdrop(uint256 _amount, bytes32[] memory _proof) public {
         verifyProof(msg.sender, _amount, _proof);
-        _mint(msg.sender, _amount);
+        uint amount = _amount * 10**decimals();
+        _mint(msg.sender, amount);
     }
 
 
