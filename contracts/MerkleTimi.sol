@@ -5,15 +5,17 @@ pragma solidity ^0.8.9;
 // import "hardhat/console.sol";
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+
 
 contract MerkleTimi is ERC20{
 
     address public owner;
-    bytes32 public merkleroot;
+    bytes32 private merkleroot;
 
-    constructor(string memory _name, string memory _symbol, bytes32 _merkleroot) ERC20(_name, _symbol){
+    constructor(string memory _name, string memory _symbol) ERC20(_name, _symbol){
         owner = msg.sender;
-        merkleroot = _merkleroot;
+        _mint(address(this), 100000000000000000000000000);
     }
 
     function onlyOwner() internal view {
@@ -25,7 +27,16 @@ contract MerkleTimi is ERC20{
         merkleroot = _root;
     }
 
-    function verifyProof(address _addr, bytes32 _proof) internal view{}
+    function verifyProof(address _addr, uint256 _amount, bytes32[] memory _proof) internal view{
+        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(_addr, _amount))));
+        if (!MerkleProof.verify(_proof, merkleroot, leaf)) revert("Invalid Proof");
+    }
+
+
+    function claimAirdrop(uint256 _amount, bytes32[] memory _proof) public {
+        verifyProof(msg.sender, _amount, _proof);
+        _mint(msg.sender, _amount);
+    }
 
 
     
